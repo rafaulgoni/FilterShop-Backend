@@ -8,8 +8,9 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 app.use(
   cors({
     origin: [
-      "http://localhost:5173"
-      
+      "http://localhost:5173",
+      "https://filter-shop.web.app",
+      "https://filter-shop.firebaseapp.com"
     ],
     credentials: true,
   })
@@ -28,9 +29,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // await client.connect();
-    
+    const productCollection = client.db("FilterShop").collection('product')
 
-
+    app.get('/product', async (req, res) => {
+      const cursor = productCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
 
     await client.db("admin").command({ ping: 1 });
@@ -41,8 +46,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-
 
 app.get('/', (req, res) => {
     res.send('FilterShop-Backend')
