@@ -32,6 +32,15 @@ async function run() {
     const productCollection = client.db("FilterShop").collection('product')
     const reviewsCollection = client.db("FilterShop").collection('reviews')
 
+    app.get('/productRange', async (req, res) => {
+      let query = {}
+      if (req.query?.range) {
+        query = { range: req.query.range }
+      }
+      const result = await productCollection.find(query).toArray();
+      res.send(result)
+    });
+
     app.get('/productBrand', async (req, res) => {
       let query = {}
       if (req.query?.brand) {
