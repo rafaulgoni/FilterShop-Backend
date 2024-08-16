@@ -31,19 +31,61 @@ async function run() {
     // await client.connect();
     const productCollection = client.db("FilterShop").collection('product')
     const reviewsCollection = client.db("FilterShop").collection('reviews')
-    
-    app.get('/product/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await productCollection.findOne(query);
-      res.send(result);
+
+    app.get('/productBrand', async (req, res) => {
+      let query = {}
+      if (req.query?.brand) {
+        query = { brand: req.query.brand }
+      }
+      const result = await productCollection.find(query).toArray();
+      res.send(result)
     });
 
-    app.get('/product', async (req, res) => {
-      const cursor = productCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    app.get('/productCategory', async (req, res) => {
+      let query = {}
+      if (req.query?.category) {
+        query = { category: req.query.category }
+      }
+      const result = await productCollection.find(query).toArray();
+      res.send(result)
     });
+
+    app.get('/productFind', async (req, res) => {
+      let query = {}
+      if (req.query?.name) {
+        query = { name: req.query.name }
+      }
+      const result = await productCollection.find(query).toArray();
+      res.send(result)
+    });
+
+    app.get('/products', async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      // console.log('pagination query', page, size);
+      const result = await productCollection.find()
+      .skip(page * size)
+      .limit(size)
+      .toArray();
+      res.send(result);
+    })
+
+    app.post('/productByIds', async(req, res) =>{
+      const ids = req.body;
+      const idsWithObjectId = ids.map(id => new ObjectId(id))
+      const query = {
+        _id: {
+          $in: idsWithObjectId
+        }
+      }
+      const result = await productCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    app.get('/productsCount', async (req, res) => {
+      const count = await productCollection.estimatedDocumentCount();
+      res.send({ count });
+    })
 
     app.get('/reviews', async (req, res) => {
       const cursor = reviewsCollection.find();
